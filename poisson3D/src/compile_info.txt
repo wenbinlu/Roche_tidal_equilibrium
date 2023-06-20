@@ -1,0 +1,11 @@
+# The first step is to compile all the *.c scripts in ../lib/ directory
+
+gcc -Wall -c *.c
+
+# then we create a static library file that links together all the *.o files in the ../lib/ directory
+
+ar -cvq libutil.a *.o
+
+# finally, we compile all the *.c codes in the ../src/ directory and provide the link to the static library file
+
+gcc -o run main.c boundary_functions.c parameters_and_boundary_types.c ../lib/libutil.a
