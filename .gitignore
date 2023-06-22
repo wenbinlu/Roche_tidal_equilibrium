@@ -1,5 +1,7 @@
 *~
 .DS_Store
+data_figs/.DS_Store
+test_rhockr0/.DS_Store
 .idea/
 __pycache__/
 *.xml
