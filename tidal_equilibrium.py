@@ -40,8 +40,8 @@ os.system('mv ' + potname + ' ' + savedir + 'potential%d.txt' % Niter)
 # exit()
 
 # update the density profile (including tidal potential)
-# rhoarr = update_rho(Phiarr, Nx, Ny, Nz, xarr, yarr, zarr, npoly, rhoc, Kentr, Qbh, qstar)  # old coordinates
 rhoarr = update_rho_sma(Phiarr, Nx, Ny, Nz, xarr, yarr, zarr, xcom, npoly, rhoc, Kentr, Qbh, qstar, sma)
+# rhoarr = update_rho(Phiarr, Nx, Ny, Nz, xarr, yarr, zarr, npoly, rhoc, Kentr, Qbh, qstar)  # old coordinates
 # rhoarr = update_rho_x0(Phiarr, Nx, Ny, Nz, xarr, yarr, zarr, xcom, npoly, x0surf, Kentr, Qbh, qstar)  # bad!!
 # print('max(rho)=', np.amax(rhoarr))
 Niter += 1
@@ -70,13 +70,6 @@ while abs(qstar - qstar_old)/qstar > rtol:
     qstar, xcom = stellar_mass(rhoarr, Nx, Ny, Nz, xarr, yarr, zarr)
     frac_delta_q = (qstar - qstar_old)/qstar
     print('qstar(%d)=%.5f, frac_delta_q=%.3e' % (Niter, qstar, frac_delta_q))
-    # if Niter > 2 and abs(frac_delta_q) > abs(frac_delta_q_old):
-    #     drifting = True
-    #     break
-# if drifting:
-#     print('drifting has started, please use potential%d and rho%d as the final result' % (Niter-1, Niter-1))
-# else:
-#     print('solution has converged well because Mstar(%d)=Mstar(%d)!' % (Niter, Niter-1))
 print('solution has converged well because Mstar(%d)=Mstar(%d)!' % (Niter, Niter-1))
 
 # exit()
