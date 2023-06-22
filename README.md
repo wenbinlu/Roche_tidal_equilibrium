@@ -1,5 +1,5 @@
-# polytrope_equilibrium_tide
-The goal is to calculate the density profile of a polytropic star in equilibrium under quadrupolar tide. The current implementation assumes a non-spinning star (it is straightforward to implement rotation in the future).
+# Roche_tidal_equilibrium
+The goal is to calculate the density profile of a polytropic star in equilibrium under Newtonian tidal potential of a point-mass companion. The current implementation assumes a star in synchronous rotation and the coordinates are in the corotating frame.
 
 There are two major pieces of codes: a C-based Poisson solver (poisson3D) from [Derek Harrison's Github repository](https://github.com/derekharrison/poisson3D-flex.git) and an iterative density calculator (tidal_equilibrium.py).
 
@@ -27,8 +27,8 @@ qstar(3)=0.31002, frac_delta_q=7.948e-03<br>
 
 The subroutines used in the Poisson solver have already been compiled, but if they do not work, you may need to manually compile them. Follow "compile_info.txt" to do that.
 
-It should take <= 10 iterations (and ~10 seconds per iteration for standard resolution Nres=100) for the final density profile to converge and the **final** potential field is saved in "./data_figs/potential.txt".
+It should take <= 10 iterations (and ~10 seconds per iteration for standard resolution Nres=100) for the final density profile to converge and the **final** potential field is saved in "./data_figs/potential%d.txt".
 
-The relevant parameters in the equilibrium tide problem are all in "para_tidal_eq.py", where some recommended values are given. For the case of npoly = 1.5 (corresponding to adiabatic index of gamma=5/3) and lam2 = 0.3 (the second eigenvalue of the tidal tensor), I find that the star marginally fills up its Roche Lobe for a critical central density of rhocbar = 9.7.
+The relevant parameters in the equilibrium tide problem are all in "para_tidal_eq.py", where some recommended values are given. For the case of npoly = 1.5 (corresponding to adiabatic index of gamma=5/3), Kentr=0.5 (entropy constant), Qbh = 1e6 (BH mass in units of Msun), sma=100 (binary separation in units of Rsun), I find that the star marginally fills up its Roche Lobe for a critical central density of rhoc ~ 13 (in units of Msun/Rsun^3).
 
 To visualize the final density/potential profiles, you will run "Python plt_rho_Phi.py a b", which takes two command-line inputs a and b. The first input a is either 0 (plotting the potential field) or 1 (plotting the density field). The second input b specifies the density field at a certain iteration along the way to convergence. For instance, "Python plt_rho_Phi.py 0 7" will plot the final/converged potential field (the L1 point is indicated by a black dot) together with the density field in the 7th iteration. There are also two free parameters in "plt_rho_Phi.py": z_plt specifies the slice at a given z, and Ncont gives the number of contour levels for the potential field. If you run "plt_rho_Phi.py 1 0", "plt_rho_Phi.py 1 1", "plt_rho_Phi.py 1 2", etc, you will see how convergence is reached along the way.
