@@ -7,7 +7,7 @@
 extern double npoly;  // polytropic index
 extern double pi;
 extern double Lmax; // maximum domain size [machine units]
-extern int Nres;  // resolution per dimension
+extern int Nresz;  // resolution in the z direction (same as in y, half of x)
 extern char fdir[];  // directory to save the data
 
 extern double ***rhoarr;

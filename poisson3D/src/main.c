@@ -31,7 +31,7 @@
 double npoly;  // polytropic index
 double pi = M_PI;
 double Lmax; // maximum domain size [machine units]
-int Nres;  // resolution per dimension
+int Nresz;  // resolution along z (same as in y, half as in x)
 char fdir[] = "../../data_figs/";
 
 double ***rhoarr=NULL;  // density field
@@ -53,29 +53,33 @@ int main(int argc, char *argv[])
     // read Lane-Emden profile
     FILE *fp;
     char fname[100];
-    int i, j, k;
+    int Nx, Ny, Nz, i, j, k;
     char *word;
 
     int Niter = atoi(argv[1]); // convert the 2nd arg to an integer
     npoly = atof(argv[2]);
     Lmax = atof(argv[3]);
-    Nres = atoi(argv[4]);
+    Nresz = atoi(argv[4]);
 
-    double dx = Lmax/Nres;   // grid size
-    int Nbuf = (int)(40*Nres);
+    Nx = 2*Nresz;
+    Ny = Nresz;
+    Nz = Nresz;
+
+    double dx = Lmax/Nz;   // grid size
+    int Nbuf = (int)(40*Nx);
     char buffer[Nbuf];  // make sure this is long enough for a row
 
-    //printf("%i, %f, %f, %i\n", Niter, npoly, Lmax, Nres);
+    //printf("%i, %f, %f, %i\n", Niter, npoly, Lmax, Nresz);
 
-    rhoarr = matrix3D(Nres, Nres, Nres); // allocate memory
+    rhoarr = matrix3D(Nx, Ny, Nz); // allocate memory
 
     sprintf(fname, "%s%s%i%s", fdir, "rho", Niter, ".txt");
     //printf("%s\n", fname);
     
     fp = fopen(fname, "r");
     
-    for (i=0; i<Nres; i++) {
-      for (j=0; j<Nres; j++) {
+    for (i=0; i<Nx; i++) {
+      for (j=0; j<Ny; j++) {
 	fgets(buffer, sizeof(buffer), fp);
 	//if (i+j == 0) { printf("%s", buffer); }
 	k = 0;
@@ -90,14 +94,14 @@ int main(int argc, char *argv[])
 
     // calculate total stellar mass
     Mstar = 0.0;
-    for (i=0; i<Nres; i++) {
-      for (j=0; j<Nres; j++) {
-	for (k=0; k<Nres; k++) {
+    for (i=0; i<Nx; i++) {
+      for (j=0; j<Ny; j++) {
+	for (k=0; k<Nz; k++) {
 	  Mstar = Mstar + rhoarr[i][j][k] * pow(dx, 3);
 	}
       }
     }
-    //printf("stellar mass = %f\n", Mstar);
+//    printf("stellar mass = %f\n", Mstar);
     
     
     /* Set parameters and boundary conditions */
@@ -126,7 +130,6 @@ int main(int argc, char *argv[])
               grid_coordinates,
               T);
 
-    
 
     /* Exporting data */
     if(exportData)
@@ -139,7 +142,7 @@ int main(int argc, char *argv[])
     free_grid_coordinates(grid_coordinates, grid_size.nx+1, grid_size.ny+1);
     free_memory_3D(T, grid_size.nx+1, grid_size.ny+1);
     
-    free_memory_3D(rhoarr, Nres, Nres); // added
+    free_memory_3D(rhoarr, Nx, Ny); // added
     
     return 0;
 

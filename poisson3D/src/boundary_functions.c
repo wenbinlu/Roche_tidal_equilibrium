@@ -14,9 +14,9 @@
 /*-----------------------------------------------------------------------------------------------*/
 double boundary_west(double y, double z)
 {
-  // NEUMANN
+    // DIRICHLET
     /*
-     * Specify the west face boundary distribution for the Poisson equation
+     * Specify the east face boundary distribution for the Poisson equation
      * equation.
      * If the boundary is of type DIRICHLET, specify the distribution at the boundary. If the boundary
      * is of type NEUMANN specify the flux distribution at the boundary.
@@ -28,8 +28,8 @@ double boundary_west(double y, double z)
      *
      * return   f
      */
-
-    double f = 0.0;
+    double x = -Lmax;
+    double f = -4*Mstar/pow(x*x + y*y + z*z, 0.5);
 
     return f;
 
@@ -54,7 +54,7 @@ double boundary_east(double y, double z)
      * return   f
      */
     double x = Lmax;
-    double f = -8*Mstar/pow(x*x + y*y + z*z, 0.5);
+    double f = -4*Mstar/pow(x*x + y*y + z*z, 0.5);
 
     return f;
 
@@ -104,8 +104,10 @@ double boundary_north(double x, double z)
      * return   f
      */
 
+    // note: x in C-code starts from dx/2 and ends at Lmax-dx/2
+    // need to map it back to physical domain -Lmax+dx to Lmax-dx/2
     double y = Lmax;
-    double f = -8*Mstar/pow(x*x + y*y + z*z, 0.5);
+    double f = -4*Mstar/pow((x-Lmax)*(x-Lmax) + y*y + z*z, 0.5);
 
     return f;
 
@@ -152,8 +154,10 @@ double boundary_top(double x, double y)
      *
      * return   f
      */
+
+    // note: x in C-code starts from dx/2 and ends at Lmax-dx/2
     double z = Lmax;
-    double f = -8*Mstar/pow(x*x + y*y + z*z, 0.5);
+    double f = -4*Mstar/pow((x-Lmax)*(x-Lmax) + y*y + z*z, 0.5);
 
     return f;
 
@@ -180,9 +184,9 @@ double source_equation(double x, double y, double z)
 
     //double q = -sin(M_PI*x) * sin(M_PI*y) * sin(M_PI*z);
 
-  double dx = Lmax/Nres;   // grid size
+  double dx = Lmax/Nresz;   // grid size
   
-  int i = (int) round((x-0.5*dx)/dx);
+  int i = (int) round((x-0.5*dx)/dx);  // xgrid[0] = 0.5*dx
   int j = (int) round((y-0.5*dx)/dx);
   int k = (int) round((z-0.5*dx)/dx);
 

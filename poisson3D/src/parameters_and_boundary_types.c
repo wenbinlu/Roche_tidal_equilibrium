@@ -29,14 +29,14 @@ void set_parameters_and_boundary_types(domain_size_t* domain_size,
      */
   
   /* Set parameters and boundary conditions */
-    domain_size->Lx = Lmax;                               //length of domain along x coordinate
+    domain_size->Lx = 2*Lmax;                               //length of domain along x coordinate
     domain_size->Ly = Lmax;                               //length of domain along y coordinate
     domain_size->Lz = Lmax;                               //length of domain along z coordinate
 
     // setting the resolution
-    grid_size->nx = Nres;                                   //amount of nodes along x coordinate
-    grid_size->ny = Nres;                                   //amount of nodes along y coordinate
-    grid_size->nz = Nres;                                   //amount of nodes along z coordinate
+    grid_size->nx = 2*Nresz;                                 //amount of nodes along x coordinate
+    grid_size->ny = Nresz;                                   //amount of nodes along y coordinate
+    grid_size->nz = Nresz;                                   //amount of nodes along z coordinate
 
     // fixing these three
     physical_parameters->conductivity.gammax = 1.0;     //conductivity along x coordinate
@@ -44,7 +44,7 @@ void set_parameters_and_boundary_types(domain_size_t* domain_size,
     physical_parameters->conductivity.gammaz = 1.0;     //conductivity along z coordinate
     
     // (DIRICHLET vs. NEUMANN)  
-    boundary_type_faces->west_boundary   = NEUMANN;    //west face boundary type (yz plane)
+    boundary_type_faces->west_boundary   = DIRICHLET;    //west face boundary type (yz plane)
     boundary_type_faces->east_boundary   = DIRICHLET;    //east face boundary type
     boundary_type_faces->south_boundary  = NEUMANN;    //south face boundary type (xz plane)
     boundary_type_faces->north_boundary  = DIRICHLET;    //north face boundary type

@@ -10,14 +10,16 @@ def pltimg(ax, xarr, yarr, zarr, xlabel, ylabel, zlabel, cmap,
     ax.set_ylabel(ylabel)
     im = ax.imshow(zarr.transpose(),
                    interpolation='bicubic', origin='lower',
-                   cmap=cmap, aspect='auto', alpha=0.7,
+                   cmap=cmap, aspect='equal', alpha=0.7,
                    extent=(min(xarr), max(xarr),
                            min(yarr), max(yarr)))
     im.set_clim(vmin=min_val, vmax=max_val)
 
-    CB = pl.colorbar(im, ax=ax, ticks=CB_levels)
-    CB.ax.set_yticklabels(CB_ticklabels)
-    CB.ax.set_ylabel(zlabel, labelpad=3)
+    CB = pl.colorbar(im, ax=ax, ticks=CB_levels, orientation='horizontal')
+    CB.ax.set_xticklabels(CB_ticklabels)
+    CB.ax.set_xlabel(zlabel, labelpad=3)
+    # CB.ax.set_yticklabels(CB_ticklabels)
+    # CB.ax.set_ylabel(zlabel, labelpad=3)
     CB.ax.minorticks_off()
 
     if flag_contour:

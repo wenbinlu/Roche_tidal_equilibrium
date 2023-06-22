@@ -874,7 +874,7 @@ void execute_kershaw_algorithm(grid_size_t grid_size,
 
     /*Initializing parameters*/
     imax  = 5000;
-    error = 1e-6;   // changed by Wenbin (original value: 1e-30)
+    error = 1e-10;   // changed by Wenbin (original value: 1e-30)
     nt    = grid_size.nx*grid_size.ny*grid_size.nz;
 
     dot_product(kershaw_data->r,
