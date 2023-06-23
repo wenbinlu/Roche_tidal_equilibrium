@@ -1,6 +1,5 @@
 import numpy as np
 from math import pi, floor, ceil, sqrt
-from dir_info import *
 
 
 def set_grid(Lmax, Nresz):
@@ -88,9 +87,9 @@ def map_LaneEmden_x0(rhoname_initial, Nx, Ny, Nz, xarr, yarr, zarr, npoly, x0sur
     return rhoarr_new
 
 
-def write_rho(rhoarr_new, Niter, Nx, Ny, Nz):
+def write_rho(rhoname, rhoarr_new, Nx, Ny, Nz):
     # write the density profile into a file to be used by C code
-    with open(savedir + 'rho%d.txt' % Niter, 'w') as f:
+    with open(rhoname, 'w') as f:
         for i in range(Nx):
             for j in range(Ny):
                 if (i+j) >= 1:

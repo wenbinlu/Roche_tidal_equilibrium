@@ -1,21 +1,18 @@
 import matplotlib.pyplot as pl
 from my_func import pltimg, round_sig
-from dir_info import *
 from funcs_tidal_eq import *
 from para_tidal_eq import *
 import sys
 
 plt_case = int(sys.argv[1])    # 0 for pot and 1 for rho
 Niter = int(sys.argv[2])    # [0 to max_Niter] pick the density profile to plot
-
-# for the potential plot, it is best to pick Niter = max_Niter (fyr self-consistency)
+Kentr = float(sys.argv[3])
+rhoc = float(sys.argv[4])
+savedir = './data_figs/Kentr%.3f/rhoc%.3f/' % (Kentr, rhoc)
 
 # ----- plot a slice at a given z
 z_plt = 0.   # must be less than Lmax
-Ncont = 15   # number of contours for potential plot only
-
-# to get rid of zeros
-eps_small = 1e-10
+Ncont = 10   # number of contours for potential plot only
 
 potname = savedir + 'potential%d.txt' % Niter
 rhoname = savedir + 'rho%d.txt' % Niter
@@ -40,6 +37,7 @@ while rhoCB_levels[-1] > np.log10(rhoc):
 rhoCB_ticklabels = [('%g' % num) for num in rhoCB_levels]
 
 # get rid of all the zeros in density profile
+eps_small = 1e-10
 for i in range(Nx):
     for j in range(Ny):
         for k in range(Nz):
@@ -58,9 +56,9 @@ if plt_case == 0:
             for k in range(Nz):
                 z = zarr[k]
                 Phitotarr[i, j, k] = Phiarr[i, j, k] + Phitidal_sma(x, y, z, Qbh, qstar, sma)
-    Phictidal = Phitidal_sma(0, 0, 0, Qbh, qstar, sma)
-    pltarr = Phitotarr[:, :, k_plt] - Phictidal   # subtract the tidal potential at stellar center
-    pltlabel = r'$\Phi(z=%.1f)-\Phi_{\rm c,tidal}$' % zarr[k_plt]
+    Phitidal_0th = -1.5*Qbh/sma
+    pltarr = Phitotarr[:, :, k_plt] - Phitidal_0th   # subtract the tidal potential at stellar center
+    pltlabel = r'$\Phi(z=%.1f)+1.5Q/a$' % zarr[k_plt]
     # ---- testing Poisson solver
     # pltarr = Phiarr[:, :, k_plt]   # only plot the stellar potential (for testing)
     # pltlabel = r'$\Phi_*(z=%.1f)$' % zarr[k_plt]
@@ -95,9 +93,8 @@ min_val, max_val = np.amin(pltarr), np.amax(pltarr)
 print('min, max: ', min_val, max_val)
 step = round_sig((max_val-min_val)/Ncont, sig=1)  # round to sig figure = 1
 res = step
-potCB_levels = np.arange(ceil(min_val/res)*res,
-                      floor(max_val/res)*res + step, step)
-potCB_ticklabels = [('%.1f' % num) for num in potCB_levels]
+potCB_levels = np.arange(ceil(min_val/res)*res, floor(max_val/res)*res + step, step)
+potCB_ticklabels = [('%.1f' % num).replace('.0', '') for num in potCB_levels]
 
 if plt_case == 0:
     pltimg(ax, xarr, yarr, pltarr, xlabel, ylabel, pltlabel, 'bwr',
@@ -114,8 +111,8 @@ if plt_case == 0:
                     rhoCB_levels, linestyles='solid',
                     colors='orange', linewidths=2, alpha=1)
     fmt = {}
-    for l, s in zip(CS.levels, rhoCB_ticklabels):
-        fmt[l] = s
+    for ilevel, label in zip(CS.levels, rhoCB_ticklabels):
+        fmt[ilevel] = label
     pl.clabel(CS, CS.levels, inline=True, fmt=fmt,
               fontsize=30, colors=None)
 else:
@@ -123,4 +120,4 @@ else:
            rhoCB_levels, rhoCB_ticklabels, flag_contour=True)
 
 # pl.subplots_adjust(bottom=0.13, left=0.12, top=0.98, right=0.98)
-pl.savefig(savedir + savename + '.png')
+pl.savefig(savedir + savename + '.png', dpi=300)

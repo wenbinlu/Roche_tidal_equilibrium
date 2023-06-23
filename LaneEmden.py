@@ -1,7 +1,8 @@
 import numpy as np
-from dir_info import *
+import sys
 
-npoly = 1.5
+npoly = float(sys.argv[1])
+savedir = './data_figs/'
 savename = 'polytrope_profile_npoly%.5f' % npoly
 
 res = 1e-5   # resolution in dxi, method is only first-order accurate
@@ -68,3 +69,5 @@ with open(savedir + savename + '.txt', 'w') as f:
     f.write('%08d' % len(savexiarr))
     for i in range(Nxi):
         f.write('\n%.10e %.10e %.10e' % (savexiarr[i], savethearr[i], savephiarr[i]))
+
+print('file saved: ' + savedir + savename + '.txt')

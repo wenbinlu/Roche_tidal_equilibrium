@@ -99,9 +99,7 @@ void poisson3D(domain_size_t domain_size,
 
     /* Print some results */
     time_spent = (end - begin)/CLOCKS_PER_SEC;
-
-    print_results(kershaw_data,
-                  time_spent);
+    //print_results(kershaw_data, time_spent);
 
 
     /* Deallocate data */

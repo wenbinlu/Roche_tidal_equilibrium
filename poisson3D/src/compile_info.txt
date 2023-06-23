@@ -1,6 +1,7 @@
 # The first step is to compile all the *.c scripts in ../lib/ directory
 
-gcc -Wall -c *.c
+rm *.o *.a   # remove existing *.o and *.a files
+gcc -Wall -c *.c -w    # the -w option is to ignore warnings
 
 # then we create a static library file that links together all the *.o files in the ../lib/ directory
 

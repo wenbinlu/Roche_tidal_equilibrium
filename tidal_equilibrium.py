@@ -1,51 +1,68 @@
 import os
+import sys
 from funcs_tidal_eq import *
 from para_tidal_eq import *
 
-rhoname_initial = savedir + 'polytrope_profile_npoly%.5f.txt' % npoly
-potname = savedir + 'potential.txt'
-# assuming no stellar rotation and only considering quadrupolar tides
+dir_main = '/Users/wenbinlu/PycharmProjects/Roche_tidal_equilibrium/'
 
-Niter = 0   # next iteration to be done (make sure potential%d and rho%d exist)
+# input parameters
+Kentr = float(sys.argv[1])
+rhoc = float(sys.argv[2])
+
+Niter = 0   # first iteration to be done (make sure potential%d and rho%d exist)
+OnlySaveLast = True   # if true, only save the converged potential%d and rho%d files for each run
+Niter_max = 15   # maximum number of iterations
+
+# default parameters
+# Kentr = 0.5    # entropy constant [in units such that G=Msun=Rsun=1]
+# rhoc = 14.     # peak density [Msun/Rsun^3]
+
+savedir = dir_main + 'data_figs/Kentr%.3f/rhoc%.3f/' % (Kentr, rhoc)   # where data and prints are saved
+# print(savedir)
+if not os.path.exists(savedir):
+    os.system('mkdir -p ' + savedir)   # '-p' allows a multi-layer directory to be created
+log_file = open(savedir + "output.txt", "w")
+sys.stdout = log_file
+srcdir = dir_main + 'poisson3D/src/'  # where C codes are located
+potname_C_output = savedir + 'potential.txt'   # keep this the same for all iterations
+
+rhoname = savedir + 'rho%d.txt' % Niter
 Nx, Ny, Nz, xarr, yarr, zarr = set_grid(Lmax, Nresz)
+
+# exit()
 
 if Niter == 0:   # start from scratch
     # initial density profile
+    rhoname_initial = './data_figs/polytrope_profile_npoly%.5f.txt' % npoly
     rhoarr = map_LaneEmden(rhoname_initial, Nx, Ny, Nz, xarr, yarr, zarr, npoly, rhoc, Kentr)
-    # rhoarr = map_LaneEmden_x0(rhoname_initial, Nx, Ny, Nz, xarr, yarr, zarr, npoly, x0surf, Kentr)
     # print('max(rho)=', np.amax(rhoarr))
+    write_rho(rhoname, rhoarr, Nx, Ny, Nz)
 else:
-    rhoname = savedir + 'rho%d.txt' % Niter
     rhoarr = read_rho(rhoname, Nx, Ny, Nz)
 
 qstar, xcom = stellar_mass(rhoarr, Nx, Ny, Nz, xarr, yarr, zarr)
 print('qstar(%d)=%.5f' % (Niter, qstar))
-write_rho(rhoarr, Niter, Nx, Ny, Nz)
 
 # compile the C code
 compile_command = 'gcc -o run main.c boundary_functions.c parameters_and_boundary_types.c ../lib/libutil.a'
 os.chdir(srcdir)
 os.system(compile_command)
-# print(compile_command)
 
 # run the C code
-run_command = srcdir + 'run %d %.2f %.2f %d' % (Niter, npoly, Lmax, Nresz)
+run_command = srcdir + 'run %d %.3f %.3f %d %.3f %.3f' % (Niter, npoly, Lmax, Nresz, rhoc, Kentr)
 os.system(run_command)
 # print(run_command)
 print('finished iteration %d' % Niter)
 # read dimensionless potential \bar{Phi}
-Phiarr = read_Phi(potname, Nx, Ny, Nz)
-os.system('mv ' + potname + ' ' + savedir + 'potential%d.txt' % Niter)
+Phiarr = read_Phi(potname_C_output, Nx, Ny, Nz)
+potname = savedir + 'potential%d.txt' % Niter
+os.system('mv ' + potname_C_output + ' ' + potname)
 
 # exit()
 
 # update the density profile (including tidal potential)
 rhoarr = update_rho_sma(Phiarr, Nx, Ny, Nz, xarr, yarr, zarr, xcom, npoly, rhoc, Kentr, Qbh, qstar, sma)
-# rhoarr = update_rho(Phiarr, Nx, Ny, Nz, xarr, yarr, zarr, npoly, rhoc, Kentr, Qbh, qstar)  # old coordinates
-# rhoarr = update_rho_x0(Phiarr, Nx, Ny, Nz, xarr, yarr, zarr, xcom, npoly, x0surf, Kentr, Qbh, qstar)  # bad!!
 # print('max(rho)=', np.amax(rhoarr))
-Niter += 1
-write_rho(rhoarr, Niter, Nx, Ny, Nz)
 
 qstar_old = qstar
 qstar, xcom = stellar_mass(rhoarr, Nx, Ny, Nz, xarr, yarr, zarr)
@@ -55,27 +72,43 @@ print('qstar(%d)=%.5f, frac_delta_q=%.3e' % (Niter, qstar, frac_delta_q))
 # exit()
 
 # ----- check convergence based on total stellar mass
-drifting = False
 while abs(qstar - qstar_old)/qstar > rtol:
-    os.system(srcdir + 'run %d %.2f %.2f %d' % (Niter, npoly, Lmax, Nresz))
-    print('finished iteration %d' % Niter)
-    Phiarr = read_Phi(potname, Nx, Ny, Nz)
-    os.system('mv ' + potname + ' ' + savedir + 'potential%d.txt' % Niter)
-    # rhoarr = update_rho(Phiarr, Nx, Ny, Nz, xarr, yarr, zarr, npoly, rhoc, Kentr, Qbh, qstar)
-    rhoarr = update_rho_sma(Phiarr, Nx, Ny, Nz, xarr, yarr, zarr, xcom, npoly, rhoc, Kentr, Qbh, qstar, sma)
-    # rhoarr = update_rho_x0(Phiarr, Nx, Ny, Nz, xarr, yarr, zarr, xcom, npoly, x0surf, Kentr, Qbh, qstar)  # very bad!
     Niter += 1
-    write_rho(rhoarr, Niter, Nx, Ny, Nz)
+    if Niter > Niter_max:
+        break
+    rhoname_old = rhoname
+    if OnlySaveLast:  # remove rhoname_old file
+        if os.path.exists(rhoname_old):
+            os.system('rm ' + rhoname_old)
+    rhoname = savedir + 'rho%d.txt' % Niter
+    write_rho(rhoname, rhoarr, Nx, Ny, Nz)
+    run_command = srcdir + 'run %d %.3f %.3f %d %.3f %.3f' % (Niter, npoly, Lmax, Nresz, rhoc, Kentr)
+    os.system(run_command)
+    print('finished iteration %d' % Niter)
+    Phiarr = read_Phi(potname_C_output, Nx, Ny, Nz)  # always read the freshly generated C_output
+    potname_old = potname
+    if OnlySaveLast:  # remove
+        if os.path.exists(potname_old):
+            os.system('rm ' + potname_old)
+    potname = savedir + 'potential%d.txt' % Niter
+    os.system('mv ' + potname_C_output + ' ' + potname)
+    rhoarr = update_rho_sma(Phiarr, Nx, Ny, Nz, xarr, yarr, zarr, xcom, npoly, rhoc, Kentr, Qbh, qstar, sma)
+    # rhoarr = update_rho(Phiarr, Nx, Ny, Nz, xarr, yarr, zarr, npoly, rhoc, Kentr, Qbh, qstar)  # old units
+    # rhoarr = update_rho_x0(Phiarr, Nx, Ny, Nz, xarr, yarr, zarr, xcom, npoly, x0surf, Kentr, Qbh, qstar)  # bad!
     qstar_old, frac_delta_q_old = qstar, frac_delta_q
     qstar, xcom = stellar_mass(rhoarr, Nx, Ny, Nz, xarr, yarr, zarr)
     frac_delta_q = (qstar - qstar_old)/qstar
     print('qstar(%d)=%.5f, frac_delta_q=%.3e' % (Niter, qstar, frac_delta_q))
-print('solution has converged well because Mstar(%d)=Mstar(%d)!' % (Niter, Niter-1))
+
+if Niter > Niter_max:
+    print('maximum number of iterations (%d) reached, and the solution does not converge!')
+else:
+    print('solution has converged because Mstar(%d)=Mstar(%d)!' % (Niter+1, Niter))
 
 # exit()
 
 # calculate the position of the L1 point
-# potential cloest to the x-axis (for iy = 0, iz = 0, but not exactly on x-axis)
+# potential closest to the x-axis (for iy = 0, iz = 0, but not exactly on x-axis)
 Phixarr = [Phiarr[i, 0, 0] + Phitidal_sma(xarr[i], yarr[0], zarr[0], Qbh, qstar, sma) for i in range(Nx)]
 xL1, xL2, PhiL1, PhiL2 = findL1L2(Phixarr, Nx, xarr)
 
@@ -86,11 +119,20 @@ eps_small = 1e-10   # a small number equivalent to 0
 while rhoarr[isurf, 0, 0] > eps_small:
     isurf += 1
 xsurf = xarr[isurf-1]  # last point of non-zero density
-print('****FINAL**** xL1=%.3f, PhiL1=%.3f, xsurf=%.3f' % (xL1, PhiL1, xsurf))
+Phitotsurf = Phixarr[isurf-1]
+print('equilibrium result: qstar=%.5f, xL1=%.5f, PhitotL1=%.8f, xsurf=%.5f, Phitotsurf=%.8f'
+      % (qstar, xL1, PhiL1, xsurf, Phitotsurf))
 
 iL1 = np.searchsorted(xarr, xL1)
 # note: xarr[iL1-1] < xL1 <= xarr[iL1]
 if xsurf < xarr[iL1-1]:
-    print('equilibrium star is detached!')
+    print('FINAL: detached')
 else:
-    print('equilibrium star is filling up Roche Lobe!')
+    print('FINAL: overflowing')
+
+# remove grid file (not used)
+gridfile = savedir + 'GridX.txt'
+if os.path.exists(gridfile):
+    os.system('rm ' + gridfile)
+
+log_file.close()

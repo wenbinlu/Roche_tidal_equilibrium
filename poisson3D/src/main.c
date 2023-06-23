@@ -32,7 +32,8 @@ double npoly;  // polytropic index
 double pi = M_PI;
 double Lmax; // maximum domain size [machine units]
 int Nresz;  // resolution along z (same as in y, half as in x)
-char fdir[] = "../../data_figs/";
+//char fdir[] = "../../data_figs/";   // fixed read/write directory
+char fdir[100];   // variable read/write directory
 
 double ***rhoarr=NULL;  // density field
 double Mstar;  // total stellar mass
@@ -53,6 +54,7 @@ int main(int argc, char *argv[])
     // read Lane-Emden profile
     FILE *fp;
     char fname[100];
+    double rhoc, Kentr;
     int Nx, Ny, Nz, i, j, k;
     char *word;
 
@@ -60,6 +62,8 @@ int main(int argc, char *argv[])
     npoly = atof(argv[2]);
     Lmax = atof(argv[3]);
     Nresz = atoi(argv[4]);
+    rhoc = atof(argv[5]);
+    Kentr = atof(argv[6]);
 
     Nx = 2*Nresz;
     Ny = Nresz;
@@ -69,13 +73,14 @@ int main(int argc, char *argv[])
     int Nbuf = (int)(40*Nx);
     char buffer[Nbuf];  // make sure this is long enough for a row
 
-    //printf("%i, %f, %f, %i\n", Niter, npoly, Lmax, Nresz);
+//    printf("%i, %f, %f, %i, %f, %f\n", Niter, npoly, Lmax, Nresz, rhoc, Kentr);
 
     rhoarr = matrix3D(Nx, Ny, Nz); // allocate memory
 
+    sprintf(fdir, "%s%.3f%s%.3f%s", "../../data_figs/Kentr", Kentr, "/rhoc", rhoc, "/");
     sprintf(fname, "%s%s%i%s", fdir, "rho", Niter, ".txt");
-    //printf("%s\n", fname);
-    
+//    printf("%s\n", fname);
+
     fp = fopen(fname, "r");
     
     for (i=0; i<Nx; i++) {
