@@ -1,5 +1,6 @@
 import numpy as np
 import os
+from scipy.interpolate import interp1d
 from math import pi
 from multiprocessing import Process
 
@@ -9,10 +10,16 @@ from multiprocessing import Process
 # Kentr_list = [0.5]  # manual set
 
 # consider a particular low-mass main-sequence star
-Mstar, Rstar = 0.5, 0.5**0.8   # Msun, Rsun
 npoly = 1.5
 ximax, phimax = 3.65375, 2.71409   # obtained from LaneEmden.py
+Mstar = 0.5  # Msun
+Rstar_fname = './data_figs/mass_radius_3Gyr.txt'
+data = np.loadtxt(Rstar_fname, skiprows=1)
+Marr, Rarr = data[:, 0], data[:, 1]
+RM_interp = interp1d(Marr, Rarr)
+Rstar = RM_interp(Mstar)   # Rsun
 Kentr = (4*pi)**(1./npoly)/(npoly+1)*(Mstar/phimax)**(1-1./npoly)*(Rstar/ximax)**(3./npoly-1)
+print('Mstar, Rstar, Kentr = ', Mstar, Rstar, Kentr)
 Kentr_list = [Kentr]
 
 Ncpu = 12   # number of processors used (<=16 for best performance on desktop)
@@ -22,6 +29,7 @@ rhocarr = np.linspace(rhocmin, rhocmax, Nrhoc, endpoint=True)
 
 # note: for large rhoc >~ 50, the star is small,
 # so we reduce Lmax from the default value of 2.2 to 1.2
+
 
 def run_tidal_eq(jlist, Kentr, s):
     # jlist is a chunk of range(Nrhoc), i for Kentr_list index, s is a random seed (not used)
@@ -36,7 +44,7 @@ jlist_chunks = np.array_split(range(Nrhoc), Ncpu)
 if __name__ == '__main__':
     for i in range(NK):
         Kentr = Kentr_list[i]
-        print('Kentr=', Kentr)
+        print('working on Kentr=', Kentr)
         Kentr_dir = './data_figs/Kentr%.3f' % Kentr
         if not os.path.exists(Kentr_dir):
             os.system('mkdir -p ' + Kentr_dir)
