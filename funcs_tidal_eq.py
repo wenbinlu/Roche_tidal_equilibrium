@@ -272,7 +272,7 @@ def stellar_mass(rhoarr, Nx, Ny, Nz, xarr, yarr, zarr):
             for k in range(Nz):
                 xqstar += xarr[i]*rhoarr[i, j, k] * dx*dy*dz
                 qstar += rhoarr[i, j, k] * dx*dy*dz
-    return qstar, xqstar/qstar
+    return 4*qstar, xqstar/qstar   # total mass and center of mass
 
 
 def findL1L2(Phixarr, Nx, xarr):
