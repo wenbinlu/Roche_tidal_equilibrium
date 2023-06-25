@@ -101,7 +101,7 @@ while abs(qstar - qstar_old)/qstar > rtol:
     print('qstar(%d)=%.5f, frac_delta_q=%.3e' % (Niter, qstar, frac_delta_q))
 
 if Niter > Niter_max:
-    print('maximum number of iterations (%d) reached, and the solution does not converge!')
+    print('maximum number of iterations (%d) reached, and the solution does not converge!' % Niter_max)
 else:
     print('solution has converged because Mstar(%d)=Mstar(%d)!' % (Niter+1, Niter))
 
@@ -120,8 +120,8 @@ while rhoarr[isurf, 0, 0] > eps_small:
     isurf += 1
 xsurf = xarr[isurf-1]  # last point of non-zero density
 Phitotsurf = Phixarr[isurf-1]
-print('equilibrium result: qstar=%.5f, xL1=%.5f, PhitotL1=%.8f, xsurf=%.5f, Phitotsurf=%.8f'
-      % (qstar, xL1, PhiL1, xsurf, Phitotsurf))
+print('equilibrium result: qstar=%.5f, xL1=%.5f, PhitotL1+1.5Q/a=%.8f, xsurf=%.5f, Phitotsurf+1.5Q/a=%.8f, rhoc=%.5f'
+      % (qstar, xL1, PhiL1, xsurf, Phitotsurf, rhoc))
 
 iL1 = np.searchsorted(xarr, xL1)
 # note: xarr[iL1-1] < xL1 <= xarr[iL1]
