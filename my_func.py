@@ -3,9 +3,8 @@ from math import sqrt, sin, cos, asin, pi, acos, log10, floor, ceil, exp, log
 import pylab as pl
 
 
-def pltimg(ax, xarr, yarr, zarr, xlabel, ylabel, zlabel, cmap,
+def pltimg(ax, xarr, yarr, zarr, min_val, max_val, extend, xlabel, ylabel, zlabel, cmap,
            CB_levels, CB_ticklabels, flag_contour):
-    min_val, max_val = np.amin(zarr), np.amax(zarr)
     ax.set_xlabel(xlabel, labelpad=-2)
     ax.set_ylabel(ylabel)
     im = ax.imshow(zarr.transpose(),
@@ -15,7 +14,8 @@ def pltimg(ax, xarr, yarr, zarr, xlabel, ylabel, zlabel, cmap,
                            min(yarr), max(yarr)))
     im.set_clim(vmin=min_val, vmax=max_val)
 
-    CB = pl.colorbar(im, ax=ax, ticks=CB_levels, orientation='horizontal')
+    CB = pl.colorbar(im, ax=ax, ticks=CB_levels, extend=extend,
+                     orientation='horizontal')
     CB.ax.set_xticklabels(CB_ticklabels)
     CB.ax.set_xlabel(zlabel, labelpad=3)
     # CB.ax.set_yticklabels(CB_ticklabels)

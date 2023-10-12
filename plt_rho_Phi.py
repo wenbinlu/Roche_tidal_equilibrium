@@ -10,7 +10,7 @@ Qbh = float(sys.argv[3])
 sma = float(sys.argv[4])
 Kentr = float(sys.argv[5])
 rhoc = float(sys.argv[6])
-savedir = './data_figs/sma%d/Kentr%.3f/rhoc%.3f/' % (sma, Kentr, rhoc)
+savedir = './data_figs/sma%.1f/Kentr%.3f/rhoc%.3f/' % (sma, Kentr, rhoc)
 
 # ----- plot a slice at a given z
 z_plt = 0.   # must be less than Lmax
@@ -93,19 +93,24 @@ ax = fig.add_axes([0.12, 0.10, 0.85, 0.85])
 
 min_val, max_val = np.amin(pltarr), np.amax(pltarr)
 print('min, max: ', min_val, max_val)
+min_val = -2.5   # manually set min here
+if min_val > np.amin(pltarr):
+    extend = 'min'
+else:
+    extend = 'neither'
 step = round_sig((max_val-min_val)/Ncont, sig=1)  # round to sig figure = 1
 res = step
 potCB_levels = np.arange(ceil(min_val/res)*res, floor(max_val/res)*res + step, step)
 potCB_ticklabels = [('%.1f' % num).replace('.0', '') for num in potCB_levels]
 
 if plt_case == 0:
-    pltimg(ax, xarr, yarr, pltarr, xlabel, ylabel, pltlabel, 'bwr',
+    pltimg(ax, xarr, yarr, pltarr, min_val, max_val, extend, xlabel, ylabel, pltlabel, 'bwr',
            potCB_levels, potCB_ticklabels, flag_contour=True)
     if k_plt == 0:  # show the L1 point
-        ax.plot(xL1, yarr[0], 'ko', ms=5, alpha=1, fillstyle='none', zorder=10)  # empty
-        ax.plot(xL2, yarr[0], 'ko', ms=5, alpha=1, fillstyle='none', zorder=10)
-        ax.plot(xsurf1, yarr[0], 'ko', ms=5, alpha=1, zorder=10)  # filled symbol
-        ax.plot(xsurf2, yarr[0], 'ko', ms=5, alpha=1, zorder=10)  # filled symbol
+        ax.plot(xL1, yarr[0], 'ko', ms=8, alpha=1, fillstyle='none', zorder=10)  # empty
+        ax.plot(xL2, yarr[0], 'ko', ms=8, alpha=1, fillstyle='none', zorder=10)
+        ax.plot(xsurf1, yarr[0], 'ko', ms=8, alpha=1, zorder=10)  # filled symbol
+        ax.plot(xsurf2, yarr[0], 'ko', ms=8, alpha=1, zorder=10)  # filled symbol
     # overplot the density contours
     X, Y = np.meshgrid(xarr, yarr)
     logrhoarr = np.log10(rhoarr[:, :, k_plt])

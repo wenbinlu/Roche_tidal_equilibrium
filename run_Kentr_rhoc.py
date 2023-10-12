@@ -8,10 +8,11 @@ from multiprocessing import Process
 
 # note: for Ncpu=12 on my desktop, it takes ~10 minutes for each Kentr
 
-# Kentr_list = [0.1, 0.15, 0.2]  # manual set
-# rhocmin, rhocmax = 7, 30
+# ---- manually set
+# Kentr_list = [0.1, 0.15, 0.2, 0.3]
+# rhocmin, rhocmax = 5, 12
 
-# ---- consider a particular low-mass main-sequence star
+# ---- consider a particular entropy given by a low-mass main-sequence star
 npoly = 1.5
 ximax, phimax = 3.65375, 2.71409   # obtained from LaneEmden.py
 Mstar = 0.5  # Msun
@@ -53,9 +54,9 @@ if __name__ == '__main__':
         for j in range(Nrhoc):
             rhoc = rhocarr[j]
             rhoc_dir = './data_figs/Kentr%.3f/rhoc%.3f' % (Kentr, rhoc)
-            if not os.path.exists(rhoc_dir):
-                os.system('mkdir -p ' + rhoc_dir)
-                # print('created: ' + rhoc_dir)
+            if os.path.exists(rhoc_dir):
+                os.system('rm -rf ' + rhoc_dir)
+            os.system('mkdir -p ' + rhoc_dir)
         procs = [Process(target=run_tidal_eq,
                          args=(jlist_chunks[n], Kentr, np.random.randint(10)))
                  for n in range(Ncpu)]

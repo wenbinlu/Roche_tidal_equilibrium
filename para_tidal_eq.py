@@ -1,6 +1,10 @@
 # the following are fixed
-Qbh = 1e6     # BH mass in Msun
-sma = 150.    # SMA in Rsun
+# Qbh = 1.0     # BH mass in Msun
+# sma = 1.5    # SMA in Rsun
+
+Qbh = 1.0e6     # BH mass in Msun
+sma = 300    # SMA in Rsun
+
 npoly = 1.5   # polytropic index
 # --- accuracy of BC requires large Lmax, but grid resolution is better at small Lmax
 Lmax = 1.5   # maximum box size (reasonable size: ~2.0)
