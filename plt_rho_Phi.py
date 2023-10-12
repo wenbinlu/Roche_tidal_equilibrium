@@ -6,9 +6,11 @@ import sys
 
 plt_case = int(sys.argv[1])    # 0 for pot and 1 for rho
 Niter = int(sys.argv[2])    # [0 to max_Niter] pick the density profile to plot
-Kentr = float(sys.argv[3])
-rhoc = float(sys.argv[4])
-savedir = './data_figs/Kentr%.3f/rhoc%.3f/' % (Kentr, rhoc)
+Qbh = float(sys.argv[3])
+sma = float(sys.argv[4])
+Kentr = float(sys.argv[5])
+rhoc = float(sys.argv[6])
+savedir = './data_figs/sma%d/Kentr%.3f/rhoc%.3f/' % (sma, Kentr, rhoc)
 
 # ----- plot a slice at a given z
 z_plt = 0.   # must be less than Lmax
