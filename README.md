@@ -1,5 +1,5 @@
 # Roche_tidal_equilibrium
-The goal is to calculate the density profile of a polytropic star in equilibrium under Newtonian tidal potential of a point-mass companion. The current implementation assumes a star in synchronous rotation and the coordinates are in the corotating frame.
+The goal is to calculate the density profile of a polytropic star in equilibrium under Newtonian tidal potential of a point-mass companion. The current implementation assumes a star in synchronous rotation and calculations are done in the corotating frame with the coordinate origin at the center of the star.
 
 There are two major pieces of codes: a C-based Poisson solver (poisson3D) from [Derek Harrison's Github repository](https://github.com/derekharrison/poisson3D-flex.git) and an iterative density calculator (tidal_equilibrium.py).
 
