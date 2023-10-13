@@ -2,22 +2,26 @@ import matplotlib.pyplot as pl
 from my_func import pltimg, round_sig
 from funcs_tidal_eq import *
 from para_tidal_eq import *
+from dir_info import *
 import sys
 
-plt_case = int(sys.argv[1])    # 0 for pot and 1 for rho
+# for the fiducial run (after running run_Kentr_rhoc.py), you can use
+# python plt_rho_Phi.py 0 6 0.578 2.043
+
+plt_case = int(sys.argv[1])    # 0 for both pot and rho (recommended), 1 for rho only
 Niter = int(sys.argv[2])    # [0 to max_Niter] pick the density profile to plot
-Qbh = float(sys.argv[3])
-sma = float(sys.argv[4])
-Kentr = float(sys.argv[5])
-rhoc = float(sys.argv[6])
-savedir = './data_figs/sma%.1f/Kentr%.3f/rhoc%.3f/' % (sma, Kentr, rhoc)
+Kentr = float(sys.argv[3])
+rhoc = float(sys.argv[4])
+savedir_Krhoc = savedir + 'Kentr%.3f/rhoc%.3f/' % (Kentr, rhoc)
+
+cmap = 'BrBG'   # colormap for potential image
 
 # ----- plot a slice at a given z
 z_plt = 0.   # must be less than Lmax
 Ncont = 10   # number of contours for potential plot only
 
-potname = savedir + 'potential%d.txt' % Niter
-rhoname = savedir + 'rho%d.txt' % Niter
+potname = savedir_Krhoc + 'potential%d.txt' % Niter
+rhoname = savedir_Krhoc + 'rho%d.txt' % Niter
 
 if plt_case == 0:
     savename = 'fig_pot%d' % Niter
@@ -33,7 +37,7 @@ qstar, xcom = stellar_mass(rhoarr, Nx, Ny, Nz, xarr, yarr, zarr)
 rhoc = np.amax(rhoarr)
 print('qstar, max(rho)=', qstar, rhoc)
 
-rhoCB_levels = [-4, -3, -2, -1, 0, 0.5, 1]
+rhoCB_levels = [-7, -5, -3, -1, 0, 0.5, 1]
 while rhoCB_levels[-1] > np.log10(rhoc):
     del rhoCB_levels[-1]
 rhoCB_ticklabels = [('%g' % num) for num in rhoCB_levels]
@@ -104,7 +108,7 @@ potCB_levels = np.arange(ceil(min_val/res)*res, floor(max_val/res)*res + step, s
 potCB_ticklabels = [('%.1f' % num).replace('.0', '') for num in potCB_levels]
 
 if plt_case == 0:
-    pltimg(ax, xarr, yarr, pltarr, min_val, max_val, extend, xlabel, ylabel, pltlabel, 'bwr',
+    pltimg(ax, xarr, yarr, pltarr, min_val, max_val, extend, xlabel, ylabel, pltlabel, cmap,
            potCB_levels, potCB_ticklabels, flag_contour=True)
     if k_plt == 0:  # show the L1 point
         ax.plot(xL1, yarr[0], 'ko', ms=8, alpha=1, fillstyle='none', zorder=10)  # empty
@@ -123,8 +127,8 @@ if plt_case == 0:
     pl.clabel(CS, CS.levels, inline=True, fmt=fmt,
               fontsize=30, colors=None)
 else:
-    pltimg(ax, xarr, yarr, pltarr, xlabel, ylabel, pltlabel, 'bwr',
+    pltimg(ax, xarr, yarr, pltarr, min_val, max_val, extend, xlabel, ylabel, pltlabel, cmap,
            rhoCB_levels, rhoCB_ticklabels, flag_contour=True)
 
 # pl.subplots_adjust(bottom=0.13, left=0.12, top=0.98, right=0.98)
-pl.savefig(savedir + savename + '.png', dpi=300)
+pl.savefig(savedir_Krhoc + savename + '.png', dpi=300)

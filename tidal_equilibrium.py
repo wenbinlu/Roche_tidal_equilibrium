@@ -2,38 +2,33 @@ import os
 import sys
 from funcs_tidal_eq import *
 from para_tidal_eq import *
-
-dir_main = '/Users/wenbinlu/PycharmProjects/Roche_tidal_equilibrium/'
+from dir_info import *
 
 # input parameters
 Kentr = float(sys.argv[1])
 rhoc = float(sys.argv[2])
 
-Niter = 0   # first iteration to be done (make sure potential%d and rho%d exist)
-OnlySaveLast = True   # if true, only save the converged potential%d and rho%d files for each run
-Niter_max = 15   # maximum number of iterations
+Niter = 0   # start from this iteration number (make sure potential%d and rho%d exist)
 
-# default parameters
+# default parameters (not used)
 # Kentr = 0.5    # entropy constant [in units such that G=Msun=Rsun=1]
 # rhoc = 14.     # peak density [Msun/Rsun^3]
 
-savedir = dir_main + 'data_figs/Kentr%.3f/rhoc%.3f/' % (Kentr, rhoc)   # where data and prints are saved
-# print(savedir)
-if not os.path.exists(savedir):
-    os.system('mkdir -p ' + savedir)   # '-p' allows a multi-layer directory to be created
-log_file = open(savedir + "output.txt", "w")
+savedir_Krhoc = savedir + 'Kentr%.3f/rhoc%.3f/' % (Kentr, rhoc)   # where data and prints are saved
+if not os.path.exists(savedir_Krhoc):
+    os.system('mkdir -p ' + savedir_Krhoc)   # '-p' allows a multi-layer directory to be created
+log_file = open(savedir_Krhoc + "output.txt", "w")
 sys.stdout = log_file
-srcdir = dir_main + 'poisson3D/src/'  # where C codes are located
-potname_C_output = savedir + 'potential.txt'   # keep this the same for all iterations
+potname_C_output = savedir_Krhoc + 'potential.txt'   # keep this the same for all iterations
 
-rhoname = savedir + 'rho%d.txt' % Niter
+rhoname = savedir_Krhoc + 'rho%d.txt' % Niter
 Nx, Ny, Nz, xarr, yarr, zarr = set_grid(Lmax, Nresz)
 
 # exit()
 
 if Niter == 0:   # start from scratch
     # initial density profile
-    rhoname_initial = './data_figs/polytrope_profile_npoly%.5f.txt' % npoly
+    rhoname_initial = dir_main + 'data_figs/polytrope_profile_npoly%.5f.txt' % npoly
     rhoarr = map_LaneEmden(rhoname_initial, Nx, Ny, Nz, xarr, yarr, zarr, npoly, rhoc, Kentr)
     # print('max(rho)=', np.amax(rhoarr))
     write_rho(rhoname, rhoarr, Nx, Ny, Nz)
@@ -53,9 +48,9 @@ run_command = srcdir + 'run %d %.3f %.3f %d %.3f %.3f' % (Niter, npoly, Lmax, Nr
 os.system(run_command)
 # print(run_command)
 print('finished iteration %d' % Niter)
-# read dimensionless potential \bar{Phi}
+# read dimensionless potential Phi
 Phiarr = read_Phi(potname_C_output, Nx, Ny, Nz)
-potname = savedir + 'potential%d.txt' % Niter
+potname = savedir_Krhoc + 'potential%d.txt' % Niter
 os.system('mv ' + potname_C_output + ' ' + potname)
 
 # exit()
@@ -80,7 +75,7 @@ while abs(qstar - qstar_old)/qstar > rtol:
     if OnlySaveLast:  # remove rhoname_old file
         if os.path.exists(rhoname_old):
             os.system('rm ' + rhoname_old)
-    rhoname = savedir + 'rho%d.txt' % Niter
+    rhoname = savedir_Krhoc + 'rho%d.txt' % Niter
     write_rho(rhoname, rhoarr, Nx, Ny, Nz)
     run_command = srcdir + 'run %d %.3f %.3f %d %.3f %.3f' % (Niter, npoly, Lmax, Nresz, rhoc, Kentr)
     os.system(run_command)
@@ -90,7 +85,7 @@ while abs(qstar - qstar_old)/qstar > rtol:
     if OnlySaveLast:  # remove
         if os.path.exists(potname_old):
             os.system('rm ' + potname_old)
-    potname = savedir + 'potential%d.txt' % Niter
+    potname = savedir_Krhoc + 'potential%d.txt' % Niter
     os.system('mv ' + potname_C_output + ' ' + potname)
     rhoarr = update_rho_sma(Phiarr, Nx, Ny, Nz, xarr, yarr, zarr, xcom, npoly, rhoc, Kentr, Qbh, qstar, sma)
     # rhoarr = update_rho(Phiarr, Nx, Ny, Nz, xarr, yarr, zarr, npoly, rhoc, Kentr, Qbh, qstar)  # old units
@@ -131,7 +126,7 @@ else:
     print('FINAL: overflowing')
 
 # remove grid file (not used)
-gridfile = savedir + 'GridX.txt'
+gridfile = savedir_Krhoc + 'GridX.txt'
 if os.path.exists(gridfile):
     os.system('rm ' + gridfile)
 

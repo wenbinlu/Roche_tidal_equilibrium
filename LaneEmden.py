@@ -1,8 +1,9 @@
 import numpy as np
 import sys
+from dir_info import *
+from para_tidal_eq import *
 
-npoly = float(sys.argv[1])
-savedir = './data_figs/'
+# npoly = float(sys.argv[1])
 savename = 'polytrope_profile_npoly%.5f' % npoly
 
 res = 1e-5   # resolution in dxi, method is only first-order accurate

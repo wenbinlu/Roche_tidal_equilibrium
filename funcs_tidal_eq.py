@@ -298,15 +298,15 @@ def findL1L2(Phixarr, Nx, xarr):
     abc = np.dot(Amatrix_inv, [Phixarr[i-1], Phixarr[i], Phixarr[i+1]])
     xL1 = -abc[1]/(2*abc[0])
     PhiL1 = abc[2] - abc[1]**2/(4*abc[0])
-    # find L2 point
+    # find L2 point (on the far side of the star)
     iL2 = ixc-2
     while iL2 > 0:
         if diffPhix[iL2] > 0 > diffPhix[iL2+1]:
             break
         iL2 -= 1
     if iL2 == 0:
-        print('no L2 point detected, please use a larger Lmax!')
-        exit()
+        print('warning: no L2 point detected, consider using a larger Lmax!')
+        return xL1, xarr[iL2], PhiL1, Phixarr[iL2]
     iL2 += 1  # going back to the index of the xarr grid
     i = iL2     # now L2 point should be between iL2-1 and iL2+1
     Amatrix = np.array([[xarr[i-1]**2, xarr[i-1], 1.],
