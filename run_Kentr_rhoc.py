@@ -9,8 +9,8 @@ from dir_info import *
 # run a large number of equilibrium solutions for different Kentr and rhoc
 # (fixing Qbh, sma, npoly, as specified by para_tidal_eq.py)
 
-# note: for Ncpu=12 on my desktop, it takes ~10 minutes for each Kentr
-
+# note: for Ncpu=12, it takes ~10 minutes for each Kentr
+Ncpu = 12   # number of processors to be used
 rhocmin, rhocmax = 1.0, 5.0
 
 # ---- manually set a list of entropies
@@ -36,10 +36,8 @@ ximax, phimax = data[-1, 0], data[-1, 2]
 
 Kentr = (4*pi)**(1./npoly)/(npoly+1)*(Mstar/phimax)**(1-1./npoly)*(Rstar/ximax)**(3./npoly-1)
 # print('Mstar, Rstar, Kentr = ', Mstar, Rstar, Kentr)
-# exit()
 
 Kentr_list = [Kentr]
-Ncpu = 12   # number of processors used (<=16 for best performance on desktop)
 Nrhoc = 2*Ncpu   # each processor calculates two cases
 rhocarr = np.linspace(rhocmin, rhocmax, Nrhoc, endpoint=True)
 

@@ -9,9 +9,9 @@ import sys
 # python plt_rho_Phi.py 0 6 0.578 2.043
 
 plt_case = int(sys.argv[1])    # 0 for both pot and rho (recommended), 1 for rho only
-Niter = int(sys.argv[2])    # [0 to max_Niter] pick the density profile to plot
-Kentr = float(sys.argv[3])
-rhoc = float(sys.argv[4])
+Niter = int(sys.argv[2])    # [0 to max_Niter] pick which density and potential profiles along the iteration steps
+Kentr = float(sys.argv[3])   # entropy constant
+rhoc = float(sys.argv[4])    # central density
 savedir_Krhoc = savedir + 'Kentr%.3f/rhoc%.3f/' % (Kentr, rhoc)
 
 cmap = 'BrBG'   # colormap for potential image

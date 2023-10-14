@@ -4,15 +4,14 @@ from funcs_tidal_eq import *
 from para_tidal_eq import *
 from dir_info import *
 
+# example run
+# python tidal_equilibrium.py 0.578 2.043
+
 # input parameters
-Kentr = float(sys.argv[1])
-rhoc = float(sys.argv[2])
+Kentr = float(sys.argv[1])    #  # entropy constant [in units such that G=Msun=Rsun=1] 
+rhoc = float(sys.argv[2])     # peak density [Msun/Rsun^3]  
 
-Niter = 0   # start from this iteration number (make sure potential%d and rho%d exist)
-
-# default parameters (not used)
-# Kentr = 0.5    # entropy constant [in units such that G=Msun=Rsun=1]
-# rhoc = 14.     # peak density [Msun/Rsun^3]
+Niter = 0   # start from this iteration number (if >= 1, make sure potential%d and rho%d exist)
 
 savedir_Krhoc = savedir + 'Kentr%.3f/rhoc%.3f/' % (Kentr, rhoc)   # where data and prints are saved
 if not os.path.exists(savedir_Krhoc):
@@ -23,8 +22,6 @@ potname_C_output = savedir_Krhoc + 'potential.txt'   # keep this the same for al
 
 rhoname = savedir_Krhoc + 'rho%d.txt' % Niter
 Nx, Ny, Nz, xarr, yarr, zarr = set_grid(Lmax, Nresz)
-
-# exit()
 
 if Niter == 0:   # start from scratch
     # initial density profile
@@ -53,8 +50,6 @@ Phiarr = read_Phi(potname_C_output, Nx, Ny, Nz)
 potname = savedir_Krhoc + 'potential%d.txt' % Niter
 os.system('mv ' + potname_C_output + ' ' + potname)
 
-# exit()
-
 # update the density profile (including tidal potential)
 rhoarr = update_rho_sma(Phiarr, Nx, Ny, Nz, xarr, yarr, zarr, xcom, npoly, rhoc, Kentr, Qbh, qstar, sma)
 # print('max(rho)=', np.amax(rhoarr))
@@ -63,8 +58,6 @@ qstar_old = qstar
 qstar, xcom = stellar_mass(rhoarr, Nx, Ny, Nz, xarr, yarr, zarr)
 frac_delta_q = (qstar - qstar_old)/qstar
 print('qstar(%d)=%.5f, frac_delta_q=%.3e' % (Niter, qstar, frac_delta_q))
-
-# exit()
 
 # ----- check convergence based on total stellar mass
 while abs(qstar - qstar_old)/qstar > rtol:
@@ -82,7 +75,7 @@ while abs(qstar - qstar_old)/qstar > rtol:
     print('finished iteration %d' % Niter)
     Phiarr = read_Phi(potname_C_output, Nx, Ny, Nz)  # always read the freshly generated C_output
     potname_old = potname
-    if OnlySaveLast:  # remove
+    if OnlySaveLast:  # remove files generated in intermediate interation steps
         if os.path.exists(potname_old):
             os.system('rm ' + potname_old)
     potname = savedir_Krhoc + 'potential%d.txt' % Niter
