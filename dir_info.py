@@ -1,4 +1,3 @@
-
 dir_main = '/Users/wenbinlu/PycharmProjects/Roche_tidal_equilibrium/'
 
 srcdir = dir_main + 'poisson3D/src/'  # where C codes are located
